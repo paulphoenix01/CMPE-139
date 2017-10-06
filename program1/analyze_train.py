@@ -1,5 +1,5 @@
 from collections import Counter
-import pickle, re
+import pickle, re, json
 from nltk.corpus import stopwords
 from nltk.tokenize import wordpunct_tokenize
 from pprint import pprint
@@ -19,7 +19,7 @@ list = getTrainList()
 
 for item in list:
 	theString = item['review']
-	#Remove words with < 3 item
+	#Remove noise words with < 3 item
 	cleanString = re.sub(r'\b\w{1,3}\b', '', theString)
 	#Remove unicode and dash
 	cleanString = re.sub(r'[^\x00-\x7F]+','', cleanString)
@@ -36,12 +36,20 @@ for item in list:
 
 	for word in counter_dict:
 		if item['rate'] == '+1':
-			positive_counter_db[word] = positive_counter_db.get(word, 0) + counter_dict[word]
+			if word in positive_counter_db:
+				if positive_counter_db[word] < counter_dict[word]:
+					positive_counter_db[word] = counter_dict[word]	
+			else:
+				positive_counter_db[word] = counter_dict[word]
 		elif item['rate'] == '-1':
-			negative_counter_db[word] = negative_counter_db.get(word, 0) + counter_dict[word]
+			if word in negative_counter_db:
+				if negative_counter_db[word] < counter_dict[word]:
+					negative_counter_db[word] = counter_dict[word]
+			else:
+				negative_counter_db[word] = counter_dict[word]	
 	#print counter_dict
 
-
+## Sorted as tuple
 positive_counter_db =  positive_counter_db.items()
 positive_counter_db = sorted(positive_counter_db, key=lambda x: x[1],  reverse=True)
 
@@ -49,8 +57,15 @@ positive_counter_db = sorted(positive_counter_db, key=lambda x: x[1],  reverse=T
 negative_counter_db =  negative_counter_db.items()
 negative_counter_db = sorted(negative_counter_db, key=lambda x: x[1],  reverse=True)
 
-print "The POSITIVE ( +++ ) COUNTER DATABASE has : %d items" % (len(positive_counter_db))
-print positive_counter_db[:100]
+## Write to file as JSON
+with open('positive_word_count.json','w') as outfile:
+	json.dump(dict(positive_counter_db[:3000]),outfile)
 
-print "The NEGATIVE ( --- ) COUNTER DATABASE has : %d items" % (len(negative_counter_db))
-print positive_counter_db[:100]
+with open('negative_word_count.json','w') as outfile:
+	json.dump(dict(negative_counter_db[:3000]), outfile)
+
+print "The POSITIVE ( +++ ) COUNTER DATABASE has : %d items" % (len(positive_counter_db))
+print dict(positive_counter_db[:3000])
+
+#print "The NEGATIVE ( --- ) COUNTER DATABASE has : %d items" % (len(negative_counter_db))
+#print dict(negative_counter_db[:100])
