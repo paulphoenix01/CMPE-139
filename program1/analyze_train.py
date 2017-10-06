@@ -59,13 +59,13 @@ negative_counter_db = sorted(negative_counter_db, key=lambda x: x[1],  reverse=T
 
 ## Write to file as JSON
 with open('positive_word_count.json','w') as outfile:
-	json.dump(dict(positive_counter_db[:3000]),outfile)
+	json.dump(dict(positive_counter_db),outfile)
 
 with open('negative_word_count.json','w') as outfile:
-	json.dump(dict(negative_counter_db[:3000]), outfile)
+	json.dump(dict(negative_counter_db), outfile)
 
-print "The POSITIVE ( +++ ) COUNTER DATABASE has : %d items" % (len(positive_counter_db))
-print dict(positive_counter_db[:3000])
+#print "The POSITIVE ( +++ ) COUNTER DATABASE has : %d items" % (len(positive_counter_db))
+#print dict(positive_counter_db[:3000])
 
 #print "The NEGATIVE ( --- ) COUNTER DATABASE has : %d items" % (len(negative_counter_db))
 #print dict(negative_counter_db[:100])
