@@ -8,10 +8,21 @@ from pprint import pprint
 stop_words = set(stopwords.words('english'))
 stop_words.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}']) 
 
+neg_list = []
+pos_list = []
+
 def getTrainList():
         with open('train_json.txt','rb') as infile:
                 list = pickle.load(infile)
                 return list
+
+
+with open('lexicon_negative.txt') as f:
+    neg_list = f.read().splitlines()
+
+with open('lexicon_positive.txt') as f:
+    pos_list = f.read().splitlines()
+
 
 positive_counter_db = { }
 negative_counter_db = { } 
@@ -41,13 +52,13 @@ for item in list:
 			if word in positive_counter_db:
 				if counter_dict[word] > 1 and positive_counter_db[word] < counter_dict[word]:
 					positive_counter_db[word] = counter_dict[word]	
-			elif counter_dict[word] > 1:
+			elif counter_dict[word] > 1 and word in pos_list:
 				positive_counter_db[word] = counter_dict[word]
 		elif item['rate'] == '-1':
 			if word in negative_counter_db:
 				if counter_dict[word] > 1 and negative_counter_db[word] < counter_dict[word]:
 					negative_counter_db[word] = counter_dict[word]
-			elif counter_dict[word] > 1:
+			elif counter_dict[word] > 1 and word in neg_list:
 				negative_counter_db[word] = counter_dict[word]	
 	#print counter_dict
 
@@ -68,8 +79,8 @@ with open('negative_word_count.json','w') as outfile:
 
 #print negative_counter_db[:100]
 
-#print "The POSITIVE ( +++ ) COUNTER DATABASE has : %d items" % (len(positive_counter_db))
-#print dict(positive_counter_db[:3000])
+print "The POSITIVE ( +++ ) COUNTER DATABASE has : %d items" % (len(positive_counter_db))
+print dict(positive_counter_db[:3000])
 
 #print "The NEGATIVE ( --- ) COUNTER DATABASE has : %d items" % (len(negative_counter_db))
 #print dict(negative_counter_db[:100])
