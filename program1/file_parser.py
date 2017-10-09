@@ -1,8 +1,10 @@
+#Author: Linh Phan
+
 import pickle,io
 from bs4 import BeautifulSoup
 
+#Open Train.dat file and put as list
 train_file = open('train.dat', 'r')
-
 train_lines = train_file.read().splitlines()
 
 train_json_list = []

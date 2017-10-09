@@ -1,3 +1,5 @@
+#Author Linh Phan
+
 from collections import Counter
 import pickle, re, json
 from nltk.corpus import stopwords
@@ -8,6 +10,7 @@ from pprint import pprint
 stop_words = set(stopwords.words('english'))
 stop_words.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}']) 
 
+#List of negative word and positive word from Lexicon study
 neg_list = []
 pos_list = []
 
@@ -24,10 +27,12 @@ with open('lexicon_positive.txt') as f:
     pos_list = f.read().splitlines()
 
 
+#Json file that store word count or positive and negative reviews
 positive_counter_db = { }
 negative_counter_db = { } 
 list = getTrainList()
 
+# Traverse thru list
 counter = 0
 for item in list:
 	counter += 1
@@ -45,14 +50,17 @@ for item in list:
 	list_of_words = [i.lower() for i in wordpunct_tokenize(cleanString) if i.lower() not in stop_words]
 	
 	c = Counter(cleanString.split())
-
+	
+	#Sort list by most_common and return as dict
 	counter_dict = dict(c.most_common())
 
+	#Remove items that are not actual word
 	for word in counter_dict.keys():
 		if word not in list_of_words:
 			counter_dict.pop(word)
 		
 
+	#Add item into the dict, to get a total count of positive and negative words
 	for word in counter_dict:
 		if item['rate'] == '+1' and word in pos_list:
 			positive_counter_db[word] = positive_counter_db[word] + 1 if word in positive_counter_db else 1
@@ -92,7 +100,7 @@ with open('negative_word_count.json','w') as outfile:
 #print negative_counter_db[:100]
 
 #print "The POSITIVE ( +++ ) COUNTER DATABASE has : %d items" % (len(positive_counter_db))
-print dict(positive_counter_db[:3000])
+#print dict(positive_counter_db[:3000])
 
 #print "The NEGATIVE ( --- ) COUNTER DATABASE has : %d items" % (len(negative_counter_db))
 #print dict(negative_counter_db[:100])

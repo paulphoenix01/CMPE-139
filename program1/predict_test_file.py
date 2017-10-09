@@ -12,10 +12,11 @@ from numpy.linalg import norm
 stop_words = set(stopwords.words('english'))
 stop_words.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'])
 
-
+#Open Test.dat file
 test_file = open('test.dat', 'r')
 test_lines = test_file.read().splitlines()
 
+#Get the positive negative word count database from analyze_train.py
 positive_db = { }
 negative_db = { } 
 
@@ -29,12 +30,13 @@ with open('positive_word_count.json') as infile:
 
 result = [ ] 
 
+#Function for finding cosine similarity
 def find_cos_sim(q,p):
 	result = dot(q,p) / (norm(q) * norm(p))
 	return result
 
+#Traverse thru the test.dat review list
 counter = 0
-
 for review in test_lines:
 	counter += 1
 	print counter
@@ -48,7 +50,6 @@ for review in test_lines:
         cleanString = re.sub(r'[-]+','',cleanString)
         list_of_words = [i.lower() for i in wordpunct_tokenize(cleanString) if i.lower() not in stop_words]
 	
-	### Getting prediction if Positive or Negative ### 
 	positive_cos = 0
 	negative_cos = 0 
 			
@@ -93,7 +94,7 @@ for review in test_lines:
 	positive_cos = find_cos_sim(pos_vector, q_pos_vector)
 	negative_cos = find_cos_sim(neg_vector, q_neg_vector)
 	
-
+	#Make predict on the positive/negative 
 	if positive_cos >= negative_cos:
 		result.append("+1")
 	elif negative_cos >  positive_cos:
@@ -101,6 +102,7 @@ for review in test_lines:
 	else:
 		result.append("+1")
 
+#Write the predict as result
 with open('result.txt', 'w') as fp:
 	for item in result:
 		fp.write(item + '\n')
