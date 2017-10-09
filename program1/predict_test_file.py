@@ -29,8 +29,16 @@ with open('positive_word_count.json') as infile:
 
 result = [ ] 
 
-for review in test_lines:
+def find_cos_sim(q,p):
+	result = dot(q,p) / (norm(q) * norm(p))
+	return result
 
+counter = 0
+
+for review in test_lines:
+	counter += 1
+	print counter
+	
 	### Cleaning the review 
 	theString = review
         #Remove words with < 3 item
@@ -59,13 +67,31 @@ for review in test_lines:
 		if word in positive_db:
 			pos_vector.append(positive_db[word])
 			q_pos_vector.append(counter_dict[word])
+		else:
+			pos_vector.append(0)
+			q_pos_vector.append(counter_dict[word])
+
 		if word in negative_db:
 			neg_vector.append(negative_db[word])
 			q_neg_vector.append(counter_dict[word])
+		else:
+			neg_vector.append(0)
+			q_neg_vector.append(counter_dict[word])
+
+	for word in positive_db:
+		if word not in counter_dict:
+			pos_vector.append(positive_db[word])
+			q_pos_vector.append(0)
+
+	for word in negative_db:
+		if word not in counter_dict:
+			neg_vector.append(negative_db[word])
+			q_neg_vector.append(0)
+
 	
 	# Calculating
-	positive_cos = dot(q_pos_vector, pos_vector)/(norm(q_pos_vector)*norm(pos_vector))
-	negative_cos = dot(q_neg_vector, neg_vector) / (norm(q_neg_vector) * norm(neg_vector))
+	positive_cos = find_cos_sim(pos_vector, q_pos_vector)
+	negative_cos = find_cos_sim(neg_vector, q_neg_vector)
 	
 
 	if positive_cos >= negative_cos:
