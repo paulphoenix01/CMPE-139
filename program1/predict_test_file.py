@@ -5,7 +5,7 @@ from nltk.tokenize import wordpunct_tokenize
 from pprint import pprint
 from numpy import dot
 from numpy.linalg import norm
-
+import math, operator
 
 
 #Set stop word in english and add punctations
@@ -17,29 +17,26 @@ test_file = open('test.dat', 'r')
 test_lines = test_file.read().splitlines()
 
 #Get the positive negative word count database from analyze_train.py
-positive_db = { }
-negative_db = { } 
-
-with open('negative_word_count.json') as infile:
-	negative_db = json.load(infile)
+train_db = [ ] 
 
 
-with open('positive_word_count.json') as infile:
-        positive_db = json.load(infile)
+
+with open('train_word_count.json') as infile:
+        train_db = json.load(infile)
 
 
 result = [ ] 
 
-#Function for finding cosine similarity
-def find_cos_sim(q,p):
-	result = dot(q,p) / (norm(q) * norm(p))
-	return result
+#Find euclidean distance
+def find_euc_distance(vector1, vector2):
+	dist = math.sqrt(sum([(a - b)**2 for a, b in zip(vector1, vector2)]))
+	return dist
 
 #Traverse thru the test.dat review list
 counter = 0
-for review in test_lines:
+for review in test_lines[0:2000]:
 	counter += 1
-	print counter
+	#print counter
 	
 	### Cleaning the review 
 	theString = review
@@ -50,60 +47,59 @@ for review in test_lines:
         cleanString = re.sub(r'[-]+','',cleanString)
         list_of_words = [i.lower() for i in wordpunct_tokenize(cleanString) if i.lower() not in stop_words]
 	
-	positive_cos = 0
-	negative_cos = 0 
 			
 	c = Counter(cleanString.split())
 	counter_dict = dict(c)
 	
-	#Vector for Cosine similarity
-	pos_vector = [ ]
-	q_pos_vector = [ ]
-	
-	q_neg_vector = [ ] 
-	neg_vector = [ ]
+	euc_dist_list = [ ]
+		
+	for train_item in train_db:
+		train_word_count = train_item['word_count']
+		
+		#Current Item vector
+		train_vector = [ ]
+		test_vector = [ ]
+		
+		#Traverse to get word frequency count as vector. Zero if not in the list
+		for word in counter_dict:
+			if word in train_word_count:
+				train_vector.append(train_word_count[word])	
+				test_vector.append(counter_dict[word])
+			elif word not in train_word_count:
+				train_vector.append(0)
+				test_vector.append(counter_dict[word])
 
-	# Finding vector
-	for word in counter_dict:		
-		if word in positive_db:
-			pos_vector.append(positive_db[word])
-			q_pos_vector.append(counter_dict[word])
-		else:
-			pos_vector.append(0)
-			q_pos_vector.append(counter_dict[word])
+		for word in train_word_count:
+			if word not in counter_dict:
+				train_vector.append(train_word_count[word])
+				test_vector.append(0)
 
-		if word in negative_db:
-			neg_vector.append(negative_db[word])
-			q_neg_vector.append(counter_dict[word])
-		else:
-			neg_vector.append(0)
-			q_neg_vector.append(counter_dict[word])
+		
+		euc_dist = find_euc_distance(test_vector, train_vector)
+ 		euc_dist_list.append((euc_dist, train_item['rate']))
+		#if train_item['rate'] == "-1":
+		#	print "-1" 		
+	euc_dist_list.sort(key=operator.itemgetter(0))
 
-	for word in positive_db:
-		if word not in counter_dict:
-			pos_vector.append(positive_db[word])
-			q_pos_vector.append(0)
+	pos = 0
+	neg = 0
+	for neighbor in euc_dist_list[:100]:
+		if neighbor[1] == "+1":
+			pos += 1
+		elif neighbor[1] == "-1":
+			neg += 1
 
-	for word in negative_db:
-		if word not in counter_dict:
-			neg_vector.append(negative_db[word])
-			q_neg_vector.append(0)
-
-	
-	# Calculating
-	positive_cos = find_cos_sim(pos_vector, q_pos_vector)
-	negative_cos = find_cos_sim(neg_vector, q_neg_vector)
-	
-	#Make predict on the positive/negative 
-	if positive_cos >= negative_cos:
+	if pos >= neg:
 		result.append("+1")
-	elif negative_cos >  positive_cos:
-		result.append("-1")
-	else:
-		result.append("+1")
+	elif pos < neg:
+		result.append("-1")	
+		
+	
+	print "Count: %s, Result: %s, Pos #: %s, Neg #: %s" %(counter, result[counter-1],pos, neg)
+	
 
 #Write the predict as result
-with open('result.txt', 'w') as fp:
+with open('result0-1999.txt', 'w') as fp:
 	for item in result:
 		fp.write(item + '\n')
 

@@ -32,6 +32,9 @@ positive_counter_db = { }
 negative_counter_db = { } 
 list = getTrainList()
 
+#Train.dat wordcount for each review
+train_wc = [ ]
+
 # Traverse thru list
 counter = 0
 for item in list:
@@ -58,44 +61,18 @@ for item in list:
 	for word in counter_dict.keys():
 		if word not in list_of_words:
 			counter_dict.pop(word)
+	
 		
+	review = {
+		'rate': item['rate'],
+		'word_count': counter_dict
+	}	
 
-	#Add item into the dict, to get a total count of positive and negative words
-	for word in counter_dict:
-		if item['rate'] == '+1' and word in pos_list:
-			positive_counter_db[word] = positive_counter_db[word] + 1 if word in positive_counter_db else 1
-		elif item['rate'] == '-1' and word in neg_list:
-			negative_counter_db[word] = negative_counter_db[word] + 1 if word in negative_counter_db else 1
-	#print counter_dict
+	train_wc.append(review)
 
-# Remove most 3 common and 3 least common words
-for i in range(3):
-	del positive_counter_db[max(positive_counter_db, key=positive_counter_db.get)]
-	del negative_counter_db[max(negative_counter_db, key=negative_counter_db.get)]
+with open('train_word_count.json','w') as outfile:
+	json.dump(train_wc,outfile)
 
-for item in positive_counter_db.keys():
-	if positive_counter_db[item] <= 3:
-		positive_counter_db.pop(item)
-
-for item in negative_counter_db.keys():
-	if negative_counter_db[item] <= 3:
-		negative_counter_db.pop(item)
-
-
-## Sorted as tuple
-positive_counter_db =  positive_counter_db.items()
-positive_counter_db = sorted(positive_counter_db, key=lambda x: x[1],  reverse=True)
-
-
-negative_counter_db =  negative_counter_db.items()
-negative_counter_db = sorted(negative_counter_db, key=lambda x: x[1],  reverse=True)
-
-## Write to file as JSON
-with open('positive_word_count.json','w') as outfile:
-	json.dump(dict(positive_counter_db),outfile)
-
-with open('negative_word_count.json','w') as outfile:
-	json.dump(dict(negative_counter_db), outfile)
 
 #print negative_counter_db[:100]
 
