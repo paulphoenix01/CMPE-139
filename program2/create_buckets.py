@@ -18,8 +18,8 @@ def get_buckets(dataset):
 
 	for data in dataset[:-1]:
 		data = int(data)
-		start = index*100
-		end = (index+1) * 100
+		start = index*50
+		end = (index+1) * 50
 
 		if data >= start and data < end:
 			buckets[index] += 1
