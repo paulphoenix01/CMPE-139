@@ -35,7 +35,7 @@ for test_item in test_items:
 	active = 0
 	inactive = 0 
 
-	for neighbor in euc_dist_list[:10]:
+	for neighbor in euc_dist_list[:20]:
 		if neighbor[1] == '0':
 			inactive += 1
 		elif neighbor[1] == '1':
