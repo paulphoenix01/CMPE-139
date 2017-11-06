@@ -11,6 +11,7 @@ with open('test_buckets.json','rb') as infile:
 result = [ ] 
 
 print train_items[0]
+
 def find_euc_distance(vector1, vector2):
 	dist = math.sqrt(sum([(a - b)**2 for a, b in zip(vector1, vector2)]))
 	return dist
@@ -35,13 +36,13 @@ for test_item in test_items:
 	active = 0
 	inactive = 0 
 
-	for neighbor in euc_dist_list[:20]:
+	for neighbor in euc_dist_list[:50]:
 		if neighbor[1] == '0':
 			inactive += 1
 		elif neighbor[1] == '1':
 			active += 1
 	
-	if active >= inactive:
+	if active > inactive * 4:
 		result.append('1')
 
 	else:

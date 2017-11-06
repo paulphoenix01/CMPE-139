@@ -26,7 +26,7 @@ for line in train_lines:
 	}
 	if label == "1":
 		counter = 0
-		while counter < 5:
+		while counter < 9:
 			train_json_list.append(train_json)
 			counter+=1
 	# Add to list

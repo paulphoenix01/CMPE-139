@@ -1,4 +1,6 @@
 import pickle
+from sklearn.tree import DecisionTreeClassifier
+
 
 train_items = []
 test_items = []
@@ -12,24 +14,33 @@ train_buckets = []
 test_buckets = [] 
 
 def get_buckets(dataset):
-	buckets = [ ] 
+	buckets = [ ]
+	bucket_size = 20
 	buckets.append(0)
+
 	index = 0
-
-	for data in dataset[:-1]:
-		data = int(data)
-		start = index*50
-		end = (index+1) * 50
-
-		if data >= start and data < end:
-			buckets[index] += 1
-		if data >= end:
-			index+=1
-			buckets.append(0)
+	start = index * bucket_size
+	end = (index+1) * bucket_size	
+		
+	while(end<=100000):
+		for data in dataset[:-1]:
+			data = int(data)
+			if data < end and data >= start:
+				buckets[index] += 1
+	
+		
+		buckets.append(0)
+		index+=1
+		start = index * bucket_size
+		end = (index+1)*bucket_size
+		
 
 	return buckets
 
+counter = 0
 for item in test_items:
+	print "test", counter
+	counter += 1
 	dataset = item.split(" ")
 	#print dataset	
 	buckets = get_buckets(dataset)
@@ -40,8 +51,10 @@ for item in test_items:
 	}
 	test_buckets.append(new_json)
 
+counter = 0
 for item in train_items:
-#	print item
+	print "train",counter
+	counter+=1
 	dataset = item['data'].split(" ")
 
 	buckets = get_buckets(dataset)
