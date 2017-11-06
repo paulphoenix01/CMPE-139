@@ -2,10 +2,10 @@ import pickle,math,operator
 
 train_items = []
 test_items = [ ] 
-with open('train_buckets.json','rb') as infile:
+with open('train_list.json','rb') as infile:
         train_items = pickle.load(infile)
 
-with open('test_buckets.json','rb') as infile:
+with open('test_list.json','rb') as infile:
 	test_items = pickle.load(infile)
 
 result = [ ] 
@@ -25,8 +25,8 @@ for test_item in test_items:
 	euc_dist_list = [ ]
 
 	for train_item in train_items:
-		test_vector = test_item['data_buckets_count']
-		train_vector = train_item['data_buckets_count']
+		test_vector = test_item['data']
+		train_vector = train_item['data']
 
 		euc_dist = find_euc_distance(test_vector, train_vector)
  		euc_dist_list.append((euc_dist, train_item['label']))
